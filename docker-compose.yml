@@ -1,17 +1,4 @@
 services:
-  banking-validation:
-    image: joao0212/banking-validation:v2
-    container_name: banking-validation-container
-    environment:
-      - QUARKUS_DATASOURCE_USERNAME=joao
-      - QUARKUS_DATASOURCE_PASSWORD=joao
-      - QUARKUS_DATASOURCE_HOST=postgres-db-alura
-      - QUARKUS_DATASOURCE_PORT=5432
-    ports:
-      - 8181:8181
-    depends_on:
-      - postgres-db-alura
-
   postgres-db-alura:
     image: postgres:14
     container_name: postgres-db-alura-container
@@ -43,10 +30,24 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.3
+    container_name: schema-registry
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
 
 volumes:
   postgres_data:
