@@ -12,11 +12,11 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 @ApplicationScoped
 public class InativarAgenciaProducer {
 
-    private final MutinyEmitter<String> emitter;
+    private final MutinyEmitter<br.com.alura.Agencia> emitter;
     private final ObjectMapper objectMapper;
     private final KafkaConfiguration kafkaConfiguration;
 
-    public InativarAgenciaProducer(@Channel("remover-agencia-channel") MutinyEmitter<String> emitter, KafkaConfiguration kafkaConfiguration) {
+    public InativarAgenciaProducer(@Channel("remover-agencia-channel") MutinyEmitter<br.com.alura.Agencia> emitter, KafkaConfiguration kafkaConfiguration) {
         this.emitter = emitter;
         this.objectMapper = new ObjectMapper();
         this.kafkaConfiguration = kafkaConfiguration;
@@ -36,11 +36,13 @@ public class InativarAgenciaProducer {
 
     public Uni<Void> enviarMensagemSmallRyeMutinyEmiter(Agencia agencia) {
         try {
-            String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+             //String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+            br.com.alura.Agencia agenciaConvertida =
+                    new br.com.alura.Agencia(agencia.getNome(), agencia.getRazaoSocial(), agencia.getCnpj(), agencia.getSituacaoCadastral(), "Joao", "BB");
             if (agencia.getSituacaoCadastral().equals("INATIVO")) {
                 return emitter.send(agenciaConvertida);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             return Uni.createFrom().failure(e);
         }
         return Uni.createFrom().nullItem();
