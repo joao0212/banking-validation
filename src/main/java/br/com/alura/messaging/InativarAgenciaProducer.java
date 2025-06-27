@@ -2,7 +2,6 @@ package br.com.alura.messaging;
 
 import br.com.alura.domain.Agencia;
 import br.com.alura.messaging.configuration.KafkaConfiguration;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
@@ -24,11 +23,13 @@ public class InativarAgenciaProducer {
 
     public Uni<Void> enviarMensagemKafkaConfiguration(Agencia agencia) {
         try {
-            String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+            // String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+            br.com.alura.Agencia agenciaConvertida =
+                    new br.com.alura.Agencia(agencia.getNome(), agencia.getRazaoSocial(), agencia.getCnpj(), agencia.getSituacaoCadastral(), "Joao", "BB");
             if (agencia.getSituacaoCadastral().equals("INATIVO")) {
-                return kafkaConfiguration.enviarMensagem("remover-agencia", "", agenciaConvertida);
+                return kafkaConfiguration.enviarMensagem("remover-agencia-avro", agenciaConvertida);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             return Uni.createFrom().failure(e);
         }
         return Uni.createFrom().nullItem();

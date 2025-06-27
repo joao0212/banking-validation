@@ -23,9 +23,9 @@ public class SituacaoCadastralService {
         return situacaoCadastralRepository
                 .update("situacaoCadastral = ?1 where cnpj = ?2",
                         agencia.getSituacaoCadastral(), agencia.getCnpj())
-                // .call(() ->
-                //         inativarAgenciaProducer.enviarMensagemKafkaConfiguration(agencia)
-                // )
+                .call(() ->
+                         inativarAgenciaProducer.enviarMensagemKafkaConfiguration(agencia)
+                )
                 .call(() ->
                         inativarAgenciaProducer.enviarMensagemSmallRyeMutinyEmiter(agencia)
                 ).replaceWithVoid();
