@@ -2,7 +2,6 @@ package br.com.alura.messaging;
 
 import br.com.alura.domain.Agencia;
 import br.com.alura.messaging.configuration.KafkaConfiguration;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
@@ -14,9 +13,9 @@ public class InativarAgenciaProducer {
 
     private final ObjectMapper objectMapper;
     private final KafkaConfiguration kafkaConfiguration;
-    private final MutinyEmitter<String> mutinyEmitter;
+    private final MutinyEmitter<br.com.alura.Agencia> mutinyEmitter;
 
-    public InativarAgenciaProducer(KafkaConfiguration kafkaConfiguration, @Channel("remover-agencia-channel") MutinyEmitter<String> mutinyEmitter) {
+    public InativarAgenciaProducer(KafkaConfiguration kafkaConfiguration, @Channel("remover-agencia-channel") MutinyEmitter<br.com.alura.Agencia> mutinyEmitter) {
         this.objectMapper = new ObjectMapper();
         this.kafkaConfiguration = kafkaConfiguration;
         this.mutinyEmitter = mutinyEmitter;
@@ -25,10 +24,15 @@ public class InativarAgenciaProducer {
     public Uni<Void> enviarMensagemKafkaConfiguration(Agencia agencia) {
         try {
             if (agencia.getSituacaoCadastral().equals("INATIVO")) {
-                String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+                // String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+                br.com.alura.Agencia agenciaConvertida =
+                        new br.com.alura.Agencia(
+                                agencia.getNome(),
+                                agencia.getRazaoSocial(),
+                                agencia.getCnpj(), agencia.getSituacaoCadastral(), "Joao");
                 return kafkaConfiguration.enviarMensagem("remover-agencia", agenciaConvertida);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             return Uni.createFrom().failure(e);
         }
         return Uni.createFrom().nullItem();
@@ -37,10 +41,15 @@ public class InativarAgenciaProducer {
     public Uni<Void> enviarMensagemSmallRyeMutinyEmitter(Agencia agencia) {
         try {
             if (agencia.getSituacaoCadastral().equals("INATIVO")) {
-                String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+                //String agenciaConvertida = objectMapper.writeValueAsString(agencia);
+                br.com.alura.Agencia agenciaConvertida =
+                        new br.com.alura.Agencia(
+                                agencia.getNome(),
+                                agencia.getRazaoSocial(),
+                                agencia.getCnpj(), agencia.getSituacaoCadastral(), "Joao");
                 return mutinyEmitter.send(agenciaConvertida);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             return Uni.createFrom().failure(e);
         }
         return Uni.createFrom().nullItem();
