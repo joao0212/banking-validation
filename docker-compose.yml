@@ -1,17 +1,4 @@
 services:
-  banking-validation:
-    image: joao0212/banking-validation:v2
-    container_name: banking-validation-container
-    environment:
-      - QUARKUS_DATASOURCE_USERNAME=joao
-      - QUARKUS_DATASOURCE_PASSWORD=joao
-      - QUARKUS_DATASOURCE_HOST=postgres-db-alura
-      - QUARKUS_DATASOURCE_PORT=5432
-    ports:
-      - 8181:8181
-    depends_on:
-      - postgres-db-alura
-
   postgres-db-alura:
     image: postgres:14
     container_name: postgres-db-alura-container

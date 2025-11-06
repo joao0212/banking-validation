@@ -1,4 +1,4 @@
-package br.com.alura;
+package br.com.alura.domain;
 
 import jakarta.persistence.*;
 
@@ -9,7 +9,7 @@ public class Agencia {
 
     }
 
-    Agencia(Integer id, String nome, String razaoSocial, String cnpj, String situacaoCadastral) {
+    Agencia(Long id, String nome, String razaoSocial, String cnpj, String situacaoCadastral) {
         this.id = id;
         this.nome = nome;
         this.razaoSocial = razaoSocial;
@@ -19,7 +19,7 @@ public class Agencia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String nome;
 
     @Column(name = "razao_social")
@@ -29,7 +29,7 @@ public class Agencia {
     @Column(name = "situacao_cadastral")
     private String situacaoCadastral;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
