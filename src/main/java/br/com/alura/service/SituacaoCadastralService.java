@@ -12,6 +12,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 
+import java.util.Objects;
+
 @ApplicationScoped
 public class SituacaoCadastralService {
 
@@ -43,7 +45,10 @@ public class SituacaoCadastralService {
                 .invoke(() -> emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral())))
                 .call(() -> {
                     try {
-                        return kafkaEmitter.send(objectMapper.writeValueAsString(agencia));
+                        if (agencia.getSituacaoCadastral().equals("INATIVO")) {
+                            return kafkaEmitter.send(objectMapper.writeValueAsString(agencia));
+                        }
+                        return Uni.createFrom().voidItem();
                     } catch (JsonProcessingException e) {
                         return Uni.createFrom().failure(e);
                     }
