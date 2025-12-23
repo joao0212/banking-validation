@@ -4,15 +4,12 @@ import br.com.alura.domain.Agencia;
 import br.com.alura.domain.audit.Audit;
 import br.com.alura.repository.SituacaoCadastralRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-
-import java.util.Objects;
 
 @ApplicationScoped
 public class SituacaoCadastralService {
@@ -23,17 +20,14 @@ public class SituacaoCadastralService {
 
     private final MutinyEmitter<String> kafkaEmitter;
 
-    private final ObjectMapper objectMapper;
-
     public SituacaoCadastralService(
             SituacaoCadastralRepository situacaoCadastralRepository,
             @Channel("notificacoes") Emitter<Audit> emitter,
-            @Channel("remover-agencia-channel") MutinyEmitter<String> kafkaEmitter
+            @Channel("remover-agencia-channel") MutinyEmitter<br.com.alura.Agencia> kafkaEmitter
     ) {
         this.situacaoCadastralRepository = situacaoCadastralRepository;
         this.emitter = emitter;
         this.kafkaEmitter = kafkaEmitter;
-        this.objectMapper = new ObjectMapper();
     }
 
     @WithTransaction
@@ -45,8 +39,9 @@ public class SituacaoCadastralService {
                 .invoke(() -> emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral())))
                 .call(() -> {
                     try {
+                        br.com.alura.Agencia agenciaConvertida = new br.com.alura.Agencia(agencia.getNome(), agencia.getRazaoSocial(), agencia.getCnpj(), agencia.getSituacaoCadastral());
                         if (agencia.getSituacaoCadastral().equals("INATIVO")) {
-                            return kafkaEmitter.send(objectMapper.writeValueAsString(agencia));
+                            return kafkaEmitter.send(agenciaConvertida);
                         }
                         return Uni.createFrom().voidItem();
                     } catch (JsonProcessingException e) {
